@@ -20,40 +20,50 @@ pipeline {
         
         stage('Build and Test') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                dir('gateway-service') {
+                    sh 'mvn clean package -DskipTests'
+                }
             }
         }
         
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh "mvn sonar:sonar -Dsonar.login=${SONAR_TOKEN}"
+                dir('gateway-service') {
+                    withSonarQubeEnv('SonarQube') {
+                        sh "mvn sonar:sonar -Dsonar.login=${SONAR_TOKEN}"
+                    }
                 }
             }
         }
         
         stage('Build Docker Image') {
             steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                dir('gateway-service') {
+                    script {
+                        docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                    }
                 }
             }
         }
         
         stage('Push to DockerHub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', 
-                                               usernameVariable: 'DOCKER_USERNAME', 
-                                               passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
-                    sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                dir('gateway-service') {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', 
+                                                   usernameVariable: 'DOCKER_USERNAME', 
+                                                   passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                        sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    }
                 }
             }
         }
         
         stage('Deploy') {
             steps {
-                sh 'docker-compose up -d'
+                dir('gateway-service') {
+                    sh 'docker-compose up -d'
+                }
             }
         }
     }
