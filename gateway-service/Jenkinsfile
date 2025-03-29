@@ -30,9 +30,17 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 dir('gateway-service') {
-                    withSonarQubeEnv('SonarQube') {
-                        sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN}"
-                    }
+                    sh """
+                        mvn sonar:sonar \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN} \
+                        -Dsonar.projectKey=gateway-service \
+                        -Dsonar.projectName=gateway-service \
+                        -Dsonar.projectVersion=1.0 \
+                        -Dsonar.sources=src/main/java \
+                        -Dsonar.tests=src/test/java \
+                        -Dsonar.sourceEncoding=UTF-8
+                    """
                 }
             }
         }
