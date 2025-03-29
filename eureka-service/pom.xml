@@ -29,7 +29,7 @@
         <sonar.projectKey>eureka-service</sonar.projectKey>
         <sonar.projectName>eureka-service</sonar.projectName>
         <sonar.projectVersion>1.0</sonar.projectVersion>
-        <sonar.host.url>http://sonarqube:9000</sonar.host.url>
+        <sonar.host.url>http://localhost:9000</sonar.host.url>
         <sonar.sources>src/main/java</sonar.sources>
         <sonar.tests>src/test/java</sonar.tests>
         <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
