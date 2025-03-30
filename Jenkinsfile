@@ -162,12 +162,15 @@ pipeline {
         
         stage('Deploy') {
             steps {
+                // First, start Eureka server
+                dir('eureka-service') {
+                    sh 'docker-compose up -d'
+                    // Wait for Eureka server to be healthy
+                    sh 'sleep 60'
+                }
+                
+                // Then start other services in parallel
                 parallel(
-                    'Eureka Service': {
-                        dir('eureka-service') {
-                            sh 'docker-compose up -d'
-                        }
-                    },
                     'Gateway Service': {
                         dir('gateway-service') {
                             sh 'docker-compose up -d'
