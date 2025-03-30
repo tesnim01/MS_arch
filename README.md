@@ -25,20 +25,32 @@ The project consists of the following microservices:
 
 ## Setup Instructions
 
-1. Clone the repository:
-```bash
-git clone https://github.com/mimo009/ms_demo_cicd.git
-```
+1. **GitHub Setup**:
+   ```bash
+   # Clone the repository
+   git clone https://github.com/tesnim01/MS_arch.git
+   
+   # Create and switch to dev branch
+   git checkout -b dev
+   ```
 
-2. Build the services:
-```bash
-mvn clean package
-```
+2. **Docker Hub Setup**:
+   - Create a repository named `mimo009/ms_demo_cicd`
+   - Configure Docker Hub credentials in Jenkins
 
-3. Run the services using Docker Compose:
-```bash
-docker-compose up -d
-```
+3. **Jenkins Setup**:
+   - Create a new pipeline job named "ms_demo_cicd"
+   - Configure:
+     - Repository URL: `git@github.com:tesnim01/MS_arch.git`
+     - Branch: `dev`
+     - Script Path: `Jenkinsfile`
+   - Add credentials:
+     - `sonar-token`: Your SonarQube token
+     - `dockerhub-credentials`: Your Docker Hub credentials
+
+4. **SonarQube Setup**:
+   - Ensure SonarQube is running on port 9000
+   - Configure SonarQube token in Jenkins credentials
 
 ## Service Endpoints
 
@@ -50,25 +62,35 @@ docker-compose up -d
 
 ## CICD Pipeline
 
-The project uses Jenkins for Continuous Integration and Deployment:
-1. Code is pushed to GitHub
-2. Jenkins builds the project
-3. SonarQube performs code analysis
-4. Docker images are built and pushed to Docker Hub
-5. Services are deployed using Docker Compose
+The project uses a single Jenkins pipeline that:
+1. Builds all services in parallel
+2. Runs SonarQube analysis on all services
+3. Builds Docker images for all services
+4. Pushes images to Docker Hub with service-specific tags
+5. Deploys all services using Docker Compose
 
 ## Docker Images
 
 Docker images are available at:
-- mimo009/ms_demo_cicd/eureka-service
-- mimo009/ms_demo_cicd/gateway-service
-- mimo009/ms_demo_cicd/microservice1
-- mimo009/ms_demo_cicd/microservice2
+- mimo009/ms_demo_cicd:eureka-service-{BUILD_NUMBER}
+- mimo009/ms_demo_cicd:gateway-service-{BUILD_NUMBER}
+- mimo009/ms_demo_cicd:microservice1-{BUILD_NUMBER}
+- mimo009/ms_demo_cicd:microservice2-{BUILD_NUMBER}
+
+## Development Workflow
+
+1. Make changes in the `dev` branch
+2. Push changes to GitHub
+3. Jenkins automatically:
+   - Builds the code
+   - Runs tests
+   - Performs SonarQube analysis
+   - Builds and pushes Docker images
+   - Deploys the services
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request 
+1. Create a feature branch from `dev`
+2. Make your changes
+3. Push to your feature branch
+4. Create a Pull Request to `dev` 
