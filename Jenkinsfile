@@ -162,6 +162,34 @@ pipeline {
         
         stage('Deploy') {
             steps {
+                // First build all services
+                parallel(
+                    'Eureka Service': {
+                        dir('eureka-service') {
+                            sh 'mvn clean package -DskipTests'
+                        }
+                    },
+                    'Gateway Service': {
+                        dir('gateway-service') {
+                            sh 'mvn clean package -DskipTests'
+                        }
+                    },
+                    'Microservice1': {
+                        dir('microservice1') {
+                            sh 'mvn clean package -DskipTests'
+                        }
+                    },
+                    'Microservice2': {
+                        dir('microservice2') {
+                            sh 'mvn clean package -DskipTests'
+                        }
+                    }
+                )
+                
+                // Then build and start Docker containers
+                sh 'docker-compose down --remove-orphans'
+                sh 'docker system prune -f'
+                sh 'docker-compose build --no-cache'
                 sh 'docker-compose up -d'
             }
         }
