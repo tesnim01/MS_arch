@@ -19,130 +19,115 @@ pipeline {
         
         stage('Build and Test') {
             steps {
-                parallel(
-                    'Eureka Service': {
-                        dir('eureka-service') {
-                            sh 'mvn clean package -DskipTests'
-                        }
-                    },
-                    'Gateway Service': {
-                        dir('gateway-service') {
-                            sh 'mvn clean package -DskipTests'
-                        }
-                    },
-                    'Microservice1': {
-                        dir('microservice1') {
-                            sh 'mvn clean package -DskipTests'
-                        }
-                    },
-                    'Microservice2': {
-                        dir('microservice2') {
-                            sh 'mvn clean package -DskipTests'
-                        }
-                    }
-                )
+                // Build Eureka first as it's the foundation
+                dir('eureka-service') {
+                    sh 'mvn clean package -DskipTests'
+                }
+                
+                // Then build Gateway and microservices
+                dir('gateway-service') {
+                    sh 'mvn clean package -DskipTests'
+                }
+                
+                dir('microservice1') {
+                    sh 'mvn clean package -DskipTests'
+                }
+                
+                dir('microservice2') {
+                    sh 'mvn clean package -DskipTests'
+                }
             }
         }
         
         stage('SonarQube Analysis') {
             steps {
-                parallel(
-                    'Eureka Service': {
-                        dir('eureka-service') {
-                            sh """
-                                mvn sonar:sonar \
-                                -Dsonar.host.url=${SONAR_HOST_URL} \
-                                -Dsonar.login=${SONAR_TOKEN} \
-                                -Dsonar.projectKey=eureka-service \
-                                -Dsonar.projectName=eureka-service \
-                                -Dsonar.projectVersion=1.0 \
-                                -Dsonar.sources=src/main/java \
-                                -Dsonar.tests=src/test/java \
-                                -Dsonar.sourceEncoding=UTF-8
-                            """
-                        }
-                    },
-                    'Gateway Service': {
-                        dir('gateway-service') {
-                            sh """
-                                mvn sonar:sonar \
-                                -Dsonar.host.url=${SONAR_HOST_URL} \
-                                -Dsonar.login=${SONAR_TOKEN} \
-                                -Dsonar.projectKey=gateway-service \
-                                -Dsonar.projectName=gateway-service \
-                                -Dsonar.projectVersion=1.0 \
-                                -Dsonar.sources=src/main/java \
-                                -Dsonar.tests=src/test/java \
-                                -Dsonar.sourceEncoding=UTF-8
-                            """
-                        }
-                    },
-                    'Microservice1': {
-                        dir('microservice1') {
-                            sh """
-                                mvn sonar:sonar \
-                                -Dsonar.host.url=${SONAR_HOST_URL} \
-                                -Dsonar.login=${SONAR_TOKEN} \
-                                -Dsonar.projectKey=microservice1 \
-                                -Dsonar.projectName=microservice1 \
-                                -Dsonar.projectVersion=1.0 \
-                                -Dsonar.sources=src/main/java \
-                                -Dsonar.tests=src/test/java \
-                                -Dsonar.sourceEncoding=UTF-8
-                            """
-                        }
-                    },
-                    'Microservice2': {
-                        dir('microservice2') {
-                            sh """
-                                mvn sonar:sonar \
-                                -Dsonar.host.url=${SONAR_HOST_URL} \
-                                -Dsonar.login=${SONAR_TOKEN} \
-                                -Dsonar.projectKey=microservice2 \
-                                -Dsonar.projectName=microservice2 \
-                                -Dsonar.projectVersion=1.0 \
-                                -Dsonar.sources=src/main/java \
-                                -Dsonar.tests=src/test/java \
-                                -Dsonar.sourceEncoding=UTF-8
-                            """
-                        }
-                    }
-                )
+                // Analyze Eureka first
+                dir('eureka-service') {
+                    sh """
+                        mvn sonar:sonar \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN} \
+                        -Dsonar.projectKey=eureka-service \
+                        -Dsonar.projectName=eureka-service \
+                        -Dsonar.projectVersion=1.0 \
+                        -Dsonar.sources=src/main/java \
+                        -Dsonar.tests=src/test/java \
+                        -Dsonar.sourceEncoding=UTF-8
+                    """
+                }
+                
+                // Then analyze other services
+                dir('gateway-service') {
+                    sh """
+                        mvn sonar:sonar \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN} \
+                        -Dsonar.projectKey=gateway-service \
+                        -Dsonar.projectName=gateway-service \
+                        -Dsonar.projectVersion=1.0 \
+                        -Dsonar.sources=src/main/java \
+                        -Dsonar.tests=src/test/java \
+                        -Dsonar.sourceEncoding=UTF-8
+                    """
+                }
+                
+                dir('microservice1') {
+                    sh """
+                        mvn sonar:sonar \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN} \
+                        -Dsonar.projectKey=microservice1 \
+                        -Dsonar.projectName=microservice1 \
+                        -Dsonar.projectVersion=1.0 \
+                        -Dsonar.sources=src/main/java \
+                        -Dsonar.tests=src/test/java \
+                        -Dsonar.sourceEncoding=UTF-8
+                    """
+                }
+                
+                dir('microservice2') {
+                    sh """
+                        mvn sonar:sonar \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN} \
+                        -Dsonar.projectKey=microservice2 \
+                        -Dsonar.projectName=microservice2 \
+                        -Dsonar.projectVersion=1.0 \
+                        -Dsonar.sources=src/main/java \
+                        -Dsonar.tests=src/test/java \
+                        -Dsonar.sourceEncoding=UTF-8
+                    """
+                }
             }
         }
         
         stage('Build Docker Images') {
             steps {
-                parallel(
-                    'Eureka Service': {
-                        dir('eureka-service') {
-                            script {
-                                docker.build("${DOCKER_REPO}:eureka-service-${BUILD_NUMBER}")
-                            }
-                        }
-                    },
-                    'Gateway Service': {
-                        dir('gateway-service') {
-                            script {
-                                docker.build("${DOCKER_REPO}:gateway-service-${BUILD_NUMBER}")
-                            }
-                        }
-                    },
-                    'Microservice1': {
-                        dir('microservice1') {
-                            script {
-                                docker.build("${DOCKER_REPO}:microservice1-${BUILD_NUMBER}")
-                            }
-                        }
-                    },
-                    'Microservice2': {
-                        dir('microservice2') {
-                            script {
-                                docker.build("${DOCKER_REPO}:microservice2-${BUILD_NUMBER}")
-                            }
-                        }
+                // Build Eureka image first
+                dir('eureka-service') {
+                    script {
+                        docker.build("${DOCKER_REPO}:eureka-service-${BUILD_NUMBER}")
                     }
-                )
+                }
+                
+                // Then build other service images
+                dir('gateway-service') {
+                    script {
+                        docker.build("${DOCKER_REPO}:gateway-service-${BUILD_NUMBER}")
+                    }
+                }
+                
+                dir('microservice1') {
+                    script {
+                        docker.build("${DOCKER_REPO}:microservice1-${BUILD_NUMBER}")
+                    }
+                }
+                
+                dir('microservice2') {
+                    script {
+                        docker.build("${DOCKER_REPO}:microservice2-${BUILD_NUMBER}")
+                    }
+                }
             }
         }
         
@@ -152,7 +137,9 @@ pipeline {
                                                usernameVariable: 'DOCKER_USERNAME', 
                                                passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                    // Push Eureka first
                     sh "docker push ${DOCKER_REPO}:eureka-service-${BUILD_NUMBER}"
+                    // Then push other services
                     sh "docker push ${DOCKER_REPO}:gateway-service-${BUILD_NUMBER}"
                     sh "docker push ${DOCKER_REPO}:microservice1-${BUILD_NUMBER}"
                     sh "docker push ${DOCKER_REPO}:microservice2-${BUILD_NUMBER}"
@@ -162,33 +149,11 @@ pipeline {
         
         stage('Deploy') {
             steps {
-                // First build all services
-                parallel(
-                    'Eureka Service': {
-                        dir('eureka-service') {
-                            sh 'mvn clean package -DskipTests'
-                        }
-                    },
-                    'Gateway Service': {
-                        dir('gateway-service') {
-                            sh 'mvn clean package -DskipTests'
-                        }
-                    },
-                    'Microservice1': {
-                        dir('microservice1') {
-                            sh 'mvn clean package -DskipTests'
-                        }
-                    },
-                    'Microservice2': {
-                        dir('microservice2') {
-                            sh 'mvn clean package -DskipTests'
-                        }
-                    }
-                )
-                
-                // Then build and start Docker containers
+                // Clean up Docker environment
                 sh 'docker-compose down --remove-orphans'
                 sh 'docker system prune -f'
+                
+                // Build and start containers in order
                 sh 'docker-compose build --no-cache'
                 sh 'docker-compose up -d'
             }
