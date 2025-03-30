@@ -169,24 +169,18 @@ pipeline {
                     sh 'sleep 60'
                 }
                 
-                // Then start other services in parallel
-                parallel(
-                    'Gateway Service': {
-                        dir('gateway-service') {
-                            sh 'docker-compose up -d'
-                        }
-                    },
-                    'Microservice1': {
-                        dir('microservice1') {
-                            sh 'docker-compose up -d'
-                        }
-                    },
-                    'Microservice2': {
-                        dir('microservice2') {
-                            sh 'docker-compose up -d'
-                        }
-                    }
-                )
+                // Then start other services sequentially
+                dir('gateway-service') {
+                    sh 'docker-compose up -d'
+                }
+                
+                dir('microservice1') {
+                    sh 'docker-compose up -d'
+                }
+                
+                dir('microservice2') {
+                    sh 'docker-compose up -d'
+                }
             }
         }
     }
