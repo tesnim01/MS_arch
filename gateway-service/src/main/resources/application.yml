@@ -13,11 +13,11 @@ spring:
         - id: microservice1
           uri: lb://microservice1
           predicates:
-            - Path=/api/ms1/**
+            - Path=/serviceA/**
         - id: microservice2
           uri: lb://microservice2
           predicates:
-            - Path=/api/ms2/**
+            - Path=/serviceB/**
 
 eureka:
   client:
